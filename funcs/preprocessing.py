@@ -24,7 +24,7 @@ def match_seq_to_genename(dataset, seq_column):
     dataset: <pd.Dataframe> with an additional column containing gene names
     '''    
     
-    fasta_sequence = list(SeqIO.parse(open(f"/Users/bty449/Documents/GitHub/ExplainableAI/01_input_data/orf_trans_all.fasta"), "fasta"))
+    fasta_sequence = list(SeqIO.parse(open(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/uniprotkb_proteome_UP000000589.fasta"), "fasta"))
     
     gene_dict = {}
     
@@ -50,7 +50,7 @@ def match_seq_to_genename(dataset, seq_column):
 def find_position_in_gene(dataset, seq_column):
     positions_dict = {}
     
-    fasta_sequence = list(SeqIO.parse(open('/data/home/bty449/ExplainableAI/orf_trans_all.fasta'), 'fasta'))
+    fasta_sequence = list(SeqIO.parse(open(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/uniprotkb_proteome_UP000000589.fasta"), 'fasta'))
 
     # iterate over rows in the Sequence Window column of GG2009
     for i in dataset['Sequence']:
@@ -75,7 +75,7 @@ def get_position_and_gene(dataset, seq_column, position_column):
     gene_dict = {}
     residues_dict = {}
 
-    fasta_sequence = list(SeqIO.parse(open('/data/home/bty449/ExplainableAI/orf_trans_all.fasta'), 'fasta'))
+    fasta_sequence = list(SeqIO.parse(open(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/uniprotkb_proteome_UP000000589.fasta"), 'fasta'))
         
     # get the gene name and amino acid from the fasta file
     for index, row in dataset.iterrows():  # iterate over rows in the DataFrame

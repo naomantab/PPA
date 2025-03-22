@@ -10,7 +10,7 @@ import os
 import pandas as pd
 import numpy as np
 
-grandparent_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) 
+grandparent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) 
 sys.path.append(grandparent_dir)
 from funcs import preprocessing
 
@@ -21,8 +21,14 @@ from funcs import preprocessing
 dataset = 'TK2018'
 
 print('Loading raw data for', dataset, '...')
-data = pd.read_csv('/data/home/bty449/ExplainableAI/RawData/EMBJ-37-e98745-s005.csv', header = 0)
+# data = pd.read_csv(r'C:\Users\tnaom\OneDrive\Desktop\PPA\01_input_data\raw_data\EMBJ-37-e98745-s005.csv', header = 0)
+
+file_name = "EMBJ-37-e98745-s005.xlsx"
+data = pd.read_xlsx(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/raw_data/{file_name}", header=0)
 print('Raw data loaded.')
+
+print(data.head(10)) 
+print(data.columns)
 
 data = data[data['Localization prob'] >= 0.85] # filter data
 
