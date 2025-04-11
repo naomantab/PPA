@@ -6,6 +6,7 @@ import os
 from Bio import SeqIO
 import re
 from functools import reduce
+import requests
 
 
 # ----------------- #
@@ -67,6 +68,7 @@ def find_position_in_gene(dataset, seq_column):
 
     dataset['StartPosition'] = dataset[seq_column].map(positions_dict)
     
+    return dataset
     
     
 # ----------------- #
@@ -80,7 +82,7 @@ def get_position_and_gene(dataset, seq_column, position_column):
     # get the gene name and amino acid from the fasta file
     for index, row in dataset.iterrows():  # iterate over rows in the DataFrame
         sequence = row[seq_column]
-        position = row[position_column] - 1  # Python uses 0-based indexing
+        position = int(row[position_column]) - 1  # Python uses 0-based indexing
         for seq_record in fasta_sequence:
             if sequence in str(seq_record.seq):  # if sequence matches
                 gene_name_match = seq_record.description.split(' ')[1].split(' ')[0]
@@ -295,5 +297,60 @@ def clean_phosID_col(data):
     return data
 
 
+
+# ----------------- #
+
+def map_uniprot_to_gene(data, id_column='UniProtID', gene_column='GeneName'):
+    """
+    Maps UniProt IDs to gene names using the UniProt REST API.
+
+    Parameters:
+    - data (pd.DataFrame): The input DataFrame containing UniProt IDs.
+    - id_column (str): Column name with UniProt IDs.
+    - gene_column (str): Column name to store gene names (default: 'GeneName').
+
+    Returns:
+    - pd.DataFrame: Updated DataFrame with gene names.
+    """
+    def fetch_gene_mapping(uniprot_ids):
+        url = "https://rest.uniprot.org/uniprotkb/search"
+        query = ' OR '.join([f'accession:{uid}' for uid in uniprot_ids])
+        params = {
+            'query': query,
+            'fields': 'accession,gene_primary',
+            'format': 'tsv',
+            'size': len(uniprot_ids)
+        }
+        response = requests.get(url, params=params)
+        mapping = {}
+        if response.status_code == 200:
+            lines = response.text.strip().split('\n')[1:]  # skip header
+            for line in lines:
+                parts = line.split('\t')
+                if len(parts) == 2:
+                    acc, gene = parts
+                    mapping[acc] = gene
+                elif len(parts) == 1:
+                    acc = parts[0]
+                    mapping[acc] = "Gene name not found"
+        else:
+            print(f"API request failed with status code {response.status_code}")
+        return mapping
+
+    # Get unique UniProt IDs
+    unique_ids = data[id_column].dropna().unique().tolist()
+
+    # Fetch mappings in batches
+    batch_size = 500
+    all_mappings = {}
+    for i in range(0, len(unique_ids), batch_size):
+        batch = unique_ids[i:i + batch_size]
+        batch_map = fetch_gene_mapping(batch)
+        all_mappings.update(batch_map)
+
+    # Apply the mapping to the DataFrame
+    data[gene_column] = data[id_column].map(all_mappings).fillna("Gene name not found")
+    
+    return data
 
 # ----------------- #

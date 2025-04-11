@@ -9,8 +9,9 @@ import sys
 import os
 import pandas as pd
 import numpy as np
+import requests
 
-grandparent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) 
+grandparent_dir = os.path.abspath(os.getcwd())
 sys.path.append(grandparent_dir)
 from funcs import preprocessing
 
@@ -18,7 +19,7 @@ from funcs import preprocessing
 # LOAD & CLEAN DATA
 # ----------------- #
 
-dataset = 'AW2014'
+dataset = 'SF2022'
 
 print('Loading raw data for', dataset, '...')
 file_name = "elife-68648-supp1-v1.xlsx"
@@ -28,29 +29,59 @@ print('Raw data loaded.')
 
 data = data[data['BestProb'] >= 0.85] # filter localization probability
 
-# filter data
-data['Sequence_window'] = data['Sequence_window'].str.replace('_', '')
+# remove unnecessary columns
+data.drop('All_Parent_Proteins', axis=1, inplace=True)
+data.drop('BestProb', axis=1, inplace=True)
+data.drop('Sequence_window', axis=1, inplace=True)
+data.drop('P.1', axis=1, inplace=True)
+data.drop('P.2', axis=1, inplace=True)
+data.drop('P.3', axis=1, inplace=True)
+data.drop('Total_ExpObservations', axis=1, inplace=True)
+data.drop('AZ20_ExpObservations', axis=1, inplace=True)
+data.drop('RAD1_ExpObservations', axis=1, inplace=True)
+data.drop('AZ20_Ratio_Avg', axis=1, inplace=True)
+data.drop('AZ20_pval', axis=1, inplace=True)
+data.drop('RAD1_Ratio_Avg', axis=1, inplace=True)
+data.drop('RAD1_pval', axis=1, inplace=True)
+data.drop('quadr', axis=1, inplace=True)
+data.drop('STY.Q.X', axis=1, inplace=True)
 
-data.rename(columns={'Sequence_window': 'Sequence'}, inplace=True) # fix column name to match preprocessing func
 
-# Below temporarily removed as it may not be needed with the match_seq_to_genename() func
-# data.rename(columns={'UniProtID': 'GeneName'}, inplace=True) # fix column name to match preprocessing func
+# removes all multi-position rows
+data = data[~data['ProtName_site'].str.contains(' ')]
+data.drop('ProtName_site', axis=1, inplace=True)
 
-preprocessing.match_seq_to_genename(data, 'Sequence')
-print('Amino acid sequences matched to gene names.')
+# renames column
+data = data.rename(columns={'UniprotID': 'Phosphosite'})
 
-preprocessing.find_position_in_gene(data, 'Sequence')
-print('Position Discovered')
+# create new phosposite column
+data['Phosphosite'] = data['Unnamed: 6'].astype(str) + '_(' + data['position'].astype(str) + ')'
 
-preprocessing.get_position_and_gene(data, 'Sequence', 'StartPosition')
+data = preprocessing.map_uniprot_to_gene(data)
 
-data['Phosphosite'] = data['Reisdue'].astype(str) + '_(' + data['StartPosition'].astype(str) + ')'
+# filter out results where gene name isnt found
+data = data[~data['GeneName'].str.startswith('Gene name not found')].reset_index(drop=True)
 
-data = preprocessing.create_phos_ID(data)
+data = preprocessing.create_phos_ID(data) # call function to create phosphosite_ID column
+print('Phosphosite IDs created.')
 
+# cleaning up the dataframe final time
+# reposition column
 column_name = 'phosphosite_ID'
 data = data[[column_name] + [col for col in data.columns if col != column_name]]
+# remove incorrect amino acids
+data = data[~data['Unnamed: 6'].isin(['G', 'D', 'A', 'P', 'R'])]
+# remove incorrect IDs
+data = data[~data['phosphosite_ID'].str.startswith(('_S_', '_T_'))]
+# drop columns
+data.drop('UniProtID', axis=1, inplace=True)
+data.drop('position', axis=1, inplace=True)
+data.drop('Unnamed: 6', axis=1, inplace=True)
 
+# export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file
-
 print(dataset, 'has been saved to CSV successfully!', data)
+
+
+
+
