@@ -25,7 +25,7 @@ def match_seq_to_genename(dataset, seq_column):
     dataset: <pd.Dataframe> with an additional column containing gene names
     '''    
     
-    fasta_sequence = list(SeqIO.parse(open(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/uniprotkb_proteome_UP000000589.fasta"), "fasta"))
+    fasta_sequence = list(SeqIO.parse(open(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/reference_seq/uniprotkb_proteome_UP000000589.fasta"), "fasta"))
     
     gene_dict = {}
     
@@ -186,7 +186,7 @@ def get_ens_dict(file_path):
 def create_dict_per_dataset(file_names):
     files_dict = {}
     for file in file_names:
-        files_dict[file] = pd.read_csv(f'/data/home/bty449/ExplainableAI/PreprocessedDatasets/{file}.csv', header=0)
+        files_dict[file] = pd.read_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{file}.csv', header=0)
         print(f"{file} added to dict")
     print('Datasets have been loaded into dictionary.')
     return files_dict
@@ -201,7 +201,7 @@ def create_matrix_header(files_dict):
     
     phos_id = files_merged['phosphosite_ID'].unique()
     matrix_cols = pd.DataFrame(columns = phos_id) 
-    matrix_cols.to_csv('/data/home/bty449/ExplainableAI/RawMatrixProcessing/raw-matrix-header.csv', index = False)
+    matrix_cols.to_csv('C:/Users/tnaom/OneDrive/Desktop/PPA/02_raw_matrix/raw-matrix-header.csv', index = False)
     print('Unique phosphosite_IDs saved.')
     return matrix_cols
 
@@ -243,7 +243,7 @@ def add_rows_to_matrix(matrix, files_datasets, files_dict):
     
     if new_rows:
         matrix = pd.concat([matrix] + new_rows, ignore_index=True)
-    matrix.to_csv('/data/home/bty449/ExplainableAI/MatrixCSVs/intermediary-raw-matrix.csv', index = False)
+    matrix.to_csv('C:/Users/tnaom/OneDrive/Desktop/PPA/02_raw_matrix/intermediary-raw-matrix.csv', index = False)
     print('Intermediary raw matrix saved.')
     return matrix
 

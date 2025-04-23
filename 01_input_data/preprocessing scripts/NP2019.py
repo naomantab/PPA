@@ -26,17 +26,13 @@ file_name = "Phospho (STY)Sites_HA2015.txt"
 data = pd.read_csv(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/raw_data/{file_name}", delimiter='\t')
 print('Raw data loaded.')
 
-data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/NP2019_test.csv', index = False) # save processed data to csv file
-
 data = data[data['Localization prob'] >= 0.85] # filter localization probability
 
 # Extract columns using list comprehension
-ratio_columns = data[[col for col in data.columns if 'Ratio' in col]]
 intensity_columns = data[[col for col in data.columns if 'Intensity' in col]]
 
 # Display the filtered columns
 filtered_columns = ['Gene names', 'Amino acid', "Position"]
-filtered_columns.extend(list(ratio_columns.columns))
 filtered_columns.extend(list(intensity_columns.columns))
 
 data = data[filtered_columns].copy()
@@ -49,7 +45,7 @@ data = data.dropna(subset=['Position'])
 data['Position'] = data['Position'].astype(int) # convert to int
 
 # create phosphosite column
-data['Phosphosite'] = data['Amino acid'].astype(str) + '_(' + data['Position'].astype(str) + ')'
+data['Phosphosite'] = data['Amino acid'].astype(str) + '(' + data['Position'].astype(str) + ')'
 
 # rename GeneName column and remove blanks
 data.rename(columns={'Gene names': 'GeneName'}, inplace=True)
@@ -72,7 +68,12 @@ data = data.dropna(subset=data.columns[1:], how='all')
 # drop rows where it contains non-conformant char
 data = data[~data['phosphosite_ID'].str.contains((';|:|-'))]
 
-# data = preprocessing.log2_transform(data)
+data = preprocessing.log2_transform(data)
+
+# final clean up
+data = preprocessing.clean_phosID_col(data)
+
+
 
 # export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file
