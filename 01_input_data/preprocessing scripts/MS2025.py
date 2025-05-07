@@ -34,3 +34,10 @@ intensity_columns = data[[col for col in data.columns if 'Intensity' in col]]
 # Display the filtered columns
 filtered_columns = ['Genes Names', 'Amino acid', "Position"]
 filtered_columns.extend(list(intensity_columns.columns))
+
+# capitalise the first col
+data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
+
+# append dataset name
+new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
+data.columns = new_columns

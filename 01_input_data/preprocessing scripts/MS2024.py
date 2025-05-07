@@ -52,7 +52,7 @@ columns_saved = [
 data = data[columns_saved].copy()
 
 # create phosphosite column
-data['Phosphosite'] = data['Amino acid'].astype(str) + '_(' + data['Position'].astype(str) + ')'
+data['Phosphosite'] = data['Amino acid'].astype(str) + '(' + data['Position'].astype(str) + ')'
 # rename GeneName column and remove blanks
 data.rename(columns={'Gene names': 'GeneName'}, inplace=True)
 data = data.dropna(subset=['GeneName'])
@@ -73,6 +73,13 @@ data = data.dropna(subset=data.columns[1:], how='all')
 
 # drop rows where it contains non-conformant char
 data = data[~data['phosphosite_ID'].str.contains((';|:|-'))]
+
+# capitalise the first col
+data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
+
+# append dataset name
+new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
+data.columns = new_columns
 
 # export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file

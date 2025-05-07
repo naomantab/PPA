@@ -57,6 +57,13 @@ data.drop(columns=['Position', 'Amino acid'], inplace=True)
 # remove columns where all cells are empty
 data = data.dropna(subset=data.columns[1:], how='all')
 
+# capitalise the first col
+data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
+
+# append dataset name
+new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
+data.columns = new_columns
+
 # clean up command
 data = preprocessing.clean_phosID_col(data)
 

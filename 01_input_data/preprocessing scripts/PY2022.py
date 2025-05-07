@@ -45,7 +45,7 @@ data['Localization prob'] = data['Localization prob'].astype(float)
 
 # filter probability
 data = data[data['Localization prob'] >= 0.85] 
-watford
+
 # rename GeneName column and remove blanks
 data.rename(columns={'Gene Symbol': 'GeneName'}, inplace=True)
 data = data[~data['GeneName'].str.contains(';|NA', na=False)]
@@ -69,6 +69,13 @@ data.drop('Localization prob', axis=1, inplace=True)
 
 # remove columns where all cells are empty
 data = data.dropna(subset=data.columns[1:], how='all')
+
+# capitalise the first col
+data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
+
+# append dataset name
+new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
+data.columns = new_columns
 
 # export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file

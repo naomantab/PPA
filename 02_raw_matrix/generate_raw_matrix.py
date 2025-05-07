@@ -28,17 +28,14 @@ print('Functions imported')
 # load preprocessed datasets
 # stores names of processed datasets
 
-file_names = ['PY2022']
-
+file_names = preprocessing.get_csv_file_names_as_tuple(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets')
 print('File names loaded')
 
 files_dict = preprocessing.create_dict_per_dataset(file_names)
+print(files_dict)
 
 matrix_cols = preprocessing.create_matrix_header(files_dict)
 print(f'Matrix header:', matrix_cols)
-
-
-# matrix_cols = preprocessing,create_maxtrix_header(files_dict)
 
 #-------------------- #
 # LOAD MATRIX HEADER
@@ -46,19 +43,24 @@ print(f'Matrix header:', matrix_cols)
 
 matrix = pd.read_csv('C:/Users/tnaom/OneDrive/Desktop/PPA/02_raw_matrix/raw-matrix-header.csv', header = 0)
 
-# ----------------- #
-# LOAD DATASET NAMES
-# ----------------- #
+# ----------------------------------------------------- #
+# LOAD DATASET NAMES & PAIR DATASET NAMES WITH FILENAMES
+# ----------------------------------------------------- #
 
-# dont write all the processed file headers out manually, find a way to do fast
+# gets all column names in the format (PY2022_4hrIntensity)
+def file_colnames(all_files):
+    result = []
+    for x in all_files:
+        df = pd.read_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{x}.csv', nrows=0)  # Only reads the header
+        columns = df.columns[1:]  # Skip first column
+        result.append((x,columns))
+        print(x)
+    return result
+    
+# files_datasets = file_colnames(all_files_in_folder)
+files_datasets = file_colnames(file_names)
 
-PY2022_names = ('a','b','c','d','e')
-
-# -------------------------------- #
-# PAIR DATASET NAMES WITH FILENAMES
-# -------------------------------- #
-
-files_datasets = [('PY2022', PY2022_names)]
+print("these are the all column names done")
 
 intermed_matrix = preprocessing.add_rows_to_matrix(matrix, files_datasets, files_dict)
 print(intermed_matrix)
@@ -71,14 +73,20 @@ print(intermed_matrix)
 cols = intermed_matrix.columns.tolist()
 cols = cols[-2:-1] + cols[:-2]
 raw_matrix = intermed_matrix[cols]
-
-# convert columns to numeric
-numeric_cols = [i for i in raw_matrix.columns if i not in ['DatasetName']]
-for col in numeric_cols:
-    raw_matrix.loc[:, col]=pd.to_numeric(raw_matrix[col])
     
+# convert only numeric columns (skip 'DatasetName')
+numeric_cols = [col for col in raw_matrix.columns if col != 'DatasetName']
+for col in numeric_cols:
+    raw_matrix[col] = pd.to_numeric(raw_matrix[col], errors='coerce')
+
 # remove infinity values
 raw_matrix = raw_matrix.replace([np.inf, -np.inf], np.nan)
+
+# ensure 'DatasetName' is the first column
+cols = raw_matrix.columns.tolist()
+if 'DatasetName' in cols:
+    cols = ['DatasetName'] + [col for col in cols if col != 'DatasetName']
+    raw_matrix = raw_matrix[cols]
 
 # save raw matrix
 raw_matrix.to_csv('C:/Users/tnaom/OneDrive/Desktop/PPA/02_raw_matrix/RawMatrix.csv', index=False)

@@ -53,6 +53,13 @@ data = data[[column_name] + [col for col in data.columns if col != column_name]]
 
 data.drop(columns=['StartPosition', 'Amino Acid', 'Modified Sequence', 'Sequence'], inplace=True)
 
+# capitalise the first col
+data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
+
+# append dataset name
+new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
+data.columns = new_columns
+
 # final clean up
 data = preprocessing.clean_phosID_col(data)
 

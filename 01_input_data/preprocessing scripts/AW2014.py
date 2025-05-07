@@ -49,8 +49,9 @@ print('Data has been log2 transformed.')
 column_name = 'phosphosite_ID'
 data = data[[column_name] + [col for col in data.columns if col != column_name]]
 
-print(data.head())
-print(data.tail())
+# append dataset name
+new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
+data.columns = new_columns
 
     
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file

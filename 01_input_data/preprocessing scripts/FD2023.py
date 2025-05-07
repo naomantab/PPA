@@ -70,7 +70,15 @@ data = data.dropna(subset=data.columns[1:], how='all')
 # drop rows where it contains non-conformant char
 data = data[~data['phosphosite_ID'].str.contains((';|:|-'))]
 
+# log2 the data
 data = preprocessing.log2_transform(data)
+
+# capitalise the first col
+data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
+
+# append dataset name
+new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
+data.columns = new_columns
 
 # final clean up
 data = preprocessing.clean_phosID_col(data)

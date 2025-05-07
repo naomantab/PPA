@@ -55,7 +55,7 @@ data.drop('ProtName_site', axis=1, inplace=True)
 data = data.rename(columns={'UniprotID': 'Phosphosite'})
 
 # create new phosposite column
-data['Phosphosite'] = data['Unnamed: 6'].astype(str) + '_(' + data['position'].astype(str) + ')'
+data['Phosphosite'] = data['Unnamed: 6'].astype(str) + '(' + data['position'].astype(str) + ')'
 
 data = preprocessing.map_uniprot_to_gene(data)
 
@@ -77,6 +77,14 @@ data = data[~data['phosphosite_ID'].str.startswith(('_S_', '_T_'))]
 data.drop('UniProtID', axis=1, inplace=True)
 data.drop('position', axis=1, inplace=True)
 data.drop('Unnamed: 6', axis=1, inplace=True)
+data = data[~data['phosphosite_ID'].str.startswith('_', na=False)]
+
+# capitalise the first col
+data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
+
+# append dataset name
+new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
+data.columns = new_columns
 
 # export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file

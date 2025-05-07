@@ -10,7 +10,6 @@ import os
 import pandas as pd
 import numpy as np
 import requests
-import re
 
 grandparent_dir = os.path.abspath(os.getcwd())
 sys.path.append(grandparent_dir)
@@ -20,31 +19,38 @@ from funcs import preprocessing
 # LOAD & CLEAN DATA
 # ----------------- #
 
-dataset = 'DZ2023'
+dataset = 'MS2024'
 
 print('Loading raw data for', dataset, '...')
-file_name = "1-s2.0-S0944711323002581-mmc3.xlsx"
-data = pd.read_excel(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/raw_data/{file_name}", sheet_name='Significant',header=2)
+file_name = "msb20209819-sup-0002-datasetev1.xlsx"
+data = pd.read_excel(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/raw_data/{file_name}", sheet_name="CK-p25", header=0)
 print('Raw data loaded.')
 
-data = data[data['Localization prob'] >= 0.85] # filter data
+# drop columns
+data.drop(['Proteins', 'Uniprot Accessions', 'Sequence', '# Samples Measured', 'Cell Type Prediction', '# PSMs'], axis=1, inplace=True) # drop unnecessary columns
 
-#filtered columns
-data = data.iloc[:, [3, 5, 6] + list(range(9, 27))]
-
-data = data.rename(columns={'Gene names': 'GeneName'}) #rename GeneName
-data.dropna(subset=['GeneName'], inplace=True)
-
-data['Phosphosite'] = data['Amino acid'] + '(' + data['Position'].astype(str) + ')'
+# create phosphosite column
+data['Phosphosite'] = data['Amino acid'].astype(str) + '(' + data['Position'].astype(str) + ')'
+# rename GeneName column and remove blanks
+data.rename(columns={'Gene names': 'GeneName'}, inplace=True)
+data = data.dropna(subset=['GeneName'])
 
 data = preprocessing.create_phos_ID(data) # call function to create phosphosite_ID column
 print('Phosphosite IDs created.')
 
+# cleaning up the dataframe final time
 # reposition column
 column_name = 'phosphosite_ID'
 data = data[[column_name] + [col for col in data.columns if col != column_name]]
+# drop columns
+data.drop('Amino acid', axis=1, inplace=True)
+data.drop('Position', axis=1, inplace=True)
 
-data.drop(columns=['Position', 'Amino acid'], inplace=True)
+# remove columns where all cells are empty
+data = data.dropna(subset=data.columns[1:], how='all')
+
+# drop rows where it contains non-conformant char
+data = data[~data['phosphosite_ID'].str.contains((';|:|-'))]
 
 # capitalise the first col
 data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
@@ -52,9 +58,6 @@ data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
 # append dataset name
 new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
 data.columns = new_columns
-
-# clean up command
-data = preprocessing.clean_phosID_col(data)
 
 # export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file

@@ -20,7 +20,7 @@ from funcs import preprocessing
 # LOAD & CLEAN DATA
 # ----------------- #
 
-dataset = 'LW2022b'
+dataset = 'LW2022B'
 
 print('Loading raw data for', dataset, '...')
 file_name = "STIM1KOvsWT_proteomics+phosphoproteomics_2022 .xlsx"
@@ -52,6 +52,13 @@ print('Phosphosite IDs created.')
 # reposition column
 column_name = 'phosphosite_ID'
 data = data[[column_name] + [col for col in data.columns if col != column_name]]
+
+# capitalise the first col
+data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
+
+# append dataset name
+new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
+data.columns = new_columns
 
 # clean up command
 data = preprocessing.clean_phosID_col(data)
