@@ -35,7 +35,7 @@ data = data[data['Best Localization Probability '] >= 0.85] # filter data
 filtered_columns = ['Gene Names', "Position", 'Amino Acid',
                     'Unnamed: 9', 'Unnamed: 10', 'Unnamed: 11', 'Unnamed: 12', 'Unnamed: 13', 
                     'Unnamed: 14','Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17', 'Unnamed: 18',
-                    'Unnamed: 19', 'Intensity']
+                    'Unnamed: 19']
 
 data = data[filtered_columns].copy()
 

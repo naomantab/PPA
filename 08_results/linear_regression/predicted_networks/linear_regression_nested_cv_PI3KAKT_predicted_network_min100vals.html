@@ -1,0 +1,279 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 1000px;
+                 height: 1000px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 1000px;
+                 height: 1000px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#a7b5e0", "font": {"size": 25}, "id": "SPECC1L", "label": "SPECC1L", "shape": "dot"}, {"color": "#d16002", "font": {"size": 25}, "id": "TSC1", "label": "TSC1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ZFP263", "label": "ZFP263", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ZFYVE16", "label": "ZFYVE16", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MAL2", "label": "MAL2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MAP3K2", "label": "MAP3K2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MAP4", "label": "MAP4", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MAPK14", "label": "MAPK14", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ADD3", "label": "ADD3", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SYNM", "label": "SYNM", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "TCP1", "label": "TCP1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "TEX264", "label": "TEX264", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "USP8", "label": "USP8", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "UTP15", "label": "UTP15", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "BRAP", "label": "BRAP", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "TXLNG", "label": "TXLNG", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CLINT1", "label": "CLINT1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "TMCC3", "label": "TMCC3", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CTNNB1", "label": "CTNNB1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "KIF13B", "label": "KIF13B", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SLC7A6OS", "label": "SLC7A6OS", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "HNRNPK", "label": "HNRNPK", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "HNRNPUL2", "label": "HNRNPUL2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "HNRNPU", "label": "HNRNPU", "shape": "dot"}, {"color": "#d16002", "font": {"size": 25}, "id": "TSC2", "label": "TSC2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "HP1BP3", "label": "HP1BP3", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CCZ1", "label": "CCZ1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CDC26", "label": "CDC26", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ZRANB2", "label": "ZRANB2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CIR1", "label": "CIR1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "AQP1", "label": "AQP1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ARFGAP2", "label": "ARFGAP2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ZNF768", "label": "ZNF768", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "GIGYF2", "label": "GIGYF2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "DMTN", "label": "DMTN", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PRPF4B", "label": "PRPF4B", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PSIP1", "label": "PSIP1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SDPR", "label": "SDPR", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SENP3", "label": "SENP3", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PKP2", "label": "PKP2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PLCL2", "label": "PLCL2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "NCOR1", "label": "NCOR1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "RRAS2", "label": "RRAS2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "RRP15", "label": "RRP15", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "RTN1", "label": "RTN1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MPHOSPH8", "label": "MPHOSPH8", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MPRIP", "label": "MPRIP", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MSRB3", "label": "MSRB3", "shape": "dot"}, {"color": "#d16002", "font": {"size": 25}, "id": "IRS1", "label": "IRS1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "IMMT", "label": "IMMT", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MAP4K4", "label": "MAP4K4", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MAST2", "label": "MAST2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PPFIBP1", "label": "PPFIBP1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ITPR1", "label": "ITPR1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "IWS1", "label": "IWS1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PCNT", "label": "PCNT", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "DOCK1", "label": "DOCK1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "DPY19L1", "label": "DPY19L1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "HDLBP", "label": "HDLBP", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "AMPD2", "label": "AMPD2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ANKRD50", "label": "ANKRD50", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "RALY", "label": "RALY", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "C2CD2", "label": "C2CD2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MEF2A", "label": "MEF2A", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CALU", "label": "CALU", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CAMK2D", "label": "CAMK2D", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "OPTN", "label": "OPTN", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "YWHAE", "label": "YWHAE", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "YY1", "label": "YY1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ZC3HC1", "label": "ZC3HC1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MARK3", "label": "MARK3", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CDKN1B", "label": "CDKN1B", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "RPS6KA3", "label": "RPS6KA3", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PHACTR4", "label": "PHACTR4", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PI4KA", "label": "PI4KA", "shape": "dot"}, {"color": "#d16002", "font": {"size": 25}, "id": "PIK3C2A", "label": "PIK3C2A", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "DCP1A", "label": "DCP1A", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SLIRP", "label": "SLIRP", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SLCO2B1", "label": "SLCO2B1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SLK", "label": "SLK", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SMARCA5", "label": "SMARCA5", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SNAP23", "label": "SNAP23", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "TOE1", "label": "TOE1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MLLT4", "label": "MLLT4", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "TAF6", "label": "TAF6", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "TBC1D1", "label": "TBC1D1", "shape": "dot"}, {"color": "#d16002", "font": {"size": 25}, "id": "FOXO1", "label": "FOXO1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "AHDC1", "label": "AHDC1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "NHSL1", "label": "NHSL1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SCRIB", "label": "SCRIB", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "FRS2", "label": "FRS2", "shape": "dot"}, {"color": "#d16002", "font": {"size": 25}, "id": "GSK3B", "label": "GSK3B", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SPEN", "label": "SPEN", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "GYS1", "label": "GYS1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "EDC4", "label": "EDC4", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ACLY", "label": "ACLY", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "FARP2", "label": "FARP2", "shape": "dot"}, {"color": "#d16002", "font": {"size": 25}, "id": "BAD", "label": "BAD", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "USP24", "label": "USP24", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "NOP56", "label": "NOP56", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "NRD1", "label": "NRD1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "NSFL1C", "label": "NSFL1C", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "NAA15", "label": "NAA15", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "NBEAL1", "label": "NBEAL1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "HIST1H1C", "label": "HIST1H1C", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PUM1", "label": "PUM1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PURB", "label": "PURB", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PYGO2", "label": "PYGO2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "RBM39", "label": "RBM39", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PEX1", "label": "PEX1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PFKFB2", "label": "PFKFB2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "LIMA1", "label": "LIMA1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "LMO7", "label": "LMO7", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "LPIN1", "label": "LPIN1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "RNF20", "label": "RNF20", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "UBAP2L", "label": "UBAP2L", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ARHGAP31", "label": "ARHGAP31", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ARHGEF5", "label": "ARHGEF5", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "EAF1", "label": "EAF1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "EBAG9", "label": "EBAG9", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "UBXN6", "label": "UBXN6", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "USP10", "label": "USP10", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "STIM1", "label": "STIM1", "shape": "dot"}, {"color": "#d16002", "font": {"size": 25}, "id": "MTOR", "label": "MTOR", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CEP170B", "label": "CEP170B", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "MYO9B", "label": "MYO9B", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PACS2", "label": "PACS2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "GMPS", "label": "GMPS", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "ENSA", "label": "ENSA", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "GPS1", "label": "GPS1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CCDC43", "label": "CCDC43", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "TRIM28", "label": "TRIM28", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "TRIP11", "label": "TRIP11", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "CIC", "label": "CIC", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SH3BGRL2", "label": "SH3BGRL2", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "YBX3", "label": "YBX3", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "FHOD1", "label": "FHOD1", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "SRSF9", "label": "SRSF9", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PPP1R7", "label": "PPP1R7", "shape": "dot"}, {"color": "#a7b5e0", "font": {"size": 25}, "id": "PPP6R3", "label": "PPP6R3", "shape": "dot"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "SPECC1L", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "ZFP263", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "ZFYVE16", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "MAL2", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "MAP3K2", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "MAP4", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "MAPK14", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "ADD3", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "SYNM", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "TCP1", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "TEX264", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "USP8", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "UTP15", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "BRAP", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "TXLNG", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "CLINT1", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "TMCC3", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "CTNNB1", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "KIF13B", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "SLC7A6OS", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "HNRNPK", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "HNRNPUL2", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC2", "to": "HNRNPU", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "HP1BP3", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "CCZ1", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "CDC26", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "ZRANB2", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "CIR1", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "AQP1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "ARFGAP2", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "ZNF768", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "GIGYF2", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "DMTN", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "PRPF4B", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "PSIP1", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "SDPR", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "SENP3", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "PKP2", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "PLCL2", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "NCOR1", "value": 2}, {"arrows": "to", "color": "#873c07", "from": "TSC1", "to": "RRAS2", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "RRP15", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "RTN1", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "MPHOSPH8", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "MPRIP", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "MSRB3", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "IMMT", "to": "IRS1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "MAP4K4", "to": "IRS1", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "MAST2", "to": "IRS1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "PPFIBP1", "to": "IRS1", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "ITPR1", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "IWS1", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "PCNT", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "DOCK1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "DPY19L1", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "HDLBP", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "AMPD2", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "ANKRD50", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "RALY", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "C2CD2", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "MEF2A", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "CALU", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "CAMK2D", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "OPTN", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "YWHAE", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "YY1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "ZC3HC1", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "MARK3", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "CDKN1B", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "RPS6KA3", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "PHACTR4", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "PHACTR4", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "PI4KA", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "PIK3C2A", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "DCP1A", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "SLIRP", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "SLCO2B1", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "SLK", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "SMARCA5", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "SNAP23", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "TOE1", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "MLLT4", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "TAF6", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "TBC1D1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "AHDC1", "to": "FOXO1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "NHSL1", "to": "FOXO1", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "SCRIB", "to": "FOXO1", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "FRS2", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "SPEN", "to": "GSK3B", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "GSK3B", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "GYS1", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "EDC4", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "ACLY", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "FARP2", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "USP24", "to": "BAD", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "NOP56", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "NRD1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "NSFL1C", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "NAA15", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "NBEAL1", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "HIST1H1C", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "PUM1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "PURB", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "PYGO2", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "RBM39", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "RBM39", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "PEX1", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "PFKFB2", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "LIMA1", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "LMO7", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "LPIN1", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "LPIN1", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "TSC1", "to": "RNF20", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "UBAP2L", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "ARHGAP31", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "ARHGEF5", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "EAF1", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "EBAG9", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "UBXN6", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "USP10", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "STIM1", "value": 2}, {"arrows": "to", "color": "#f8bb8f", "from": "CEP170B", "to": "MTOR", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "MYO9B", "to": "MTOR", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "NHSL1", "to": "MTOR", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "PACS2", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "GMPS", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "ENSA", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "GPS1", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "CCDC43", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "TRIM28", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "TRIP11", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "CIC", "to": "TSC2", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "SH3BGRL2", "value": 2}, {"arrows": "to", "color": "#36441d", "from": "TSC1", "to": "YBX3", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "FHOD1", "value": 2}, {"arrows": "to", "color": "#708d3e", "from": "TSC1", "to": "SRSF9", "value": 2}, {"arrows": "to", "color": "#ca5a0b", "from": "TSC1", "to": "PPP1R7", "value": 2}, {"arrows": "to", "color": "#d4e2bd", "from": "TSC1", "to": "PPP6R3", "value": 2}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "solver": "barnesHut", // Using Barnes-Hut for a more dynamic layout
+        "barnesHut": {
+            "gravitationalConstant": -2000, // Increase for stronger pull towards the center (optional)
+            "springLength": 150, // Shorten the spring length to pull nodes together
+            "springConstant": 0.02, // Reduced to make edges less stiff (so nodes won't be pushed too far apart)
+            "damping": 0.09 // Smooth the movement
+        },
+        "repulsion": {
+            "nodeDistance": 500, // Increase repulsion for more spread between clustered nodes
+            "multiplier": 1.8 // Control the strength of the repulsion (adjust based on your layout)
+        },
+        "stabilization": {
+            "enabled": true,
+            "iterations": 1000,
+            "fit": true
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+                <div style="position:absolute; top:10px; left:10px; background:#f4f4f4; border:1px solid #444; padding:10px; font-size:14px; font-family:sans-serif; z-index:1000;">
+        <strong>Median Coefficient * R2 Boundaries:</strong><br>
+        <div style="display:flex; align-items:center;">
+            <div style="width:12px; height:12px; background:#36441d; margin-right:5px;"></div>Strong Positive Edge: 1%
+        </div>
+        <div style="display:flex; align-items:center;">
+            <div style="width:12px; height:12px; background:#708d3e; margin-right:5px;"></div>Medium Positive Edge: 3%
+        </div>
+        <div style="display:flex; align-items:center;">
+            <div style="width:12px; height:12px; background:#d4e2bd; margin-right:5px;"></div>Weak Positive Edge: 5%
+        </div>
+        <div style="display:flex; align-items:center;">
+            <div style="width:12px; height:12px; background:#873c07; margin-right:5px;"></div>Strong Negative Edge: -1%
+        </div>
+        <div style="display:flex; align-items:center;">
+            <div style="width:12px; height:12px; background:#ca5a0b; margin-right:5px;"></div>Medium Negative Edge: -3%
+        </div>
+        <div style="display:flex; align-items:center;">
+            <div style="width:12px; height:12px; background:#f8bb8f; margin-right:5px;"></div>Weak Negative Edge: -5%
+        </div>
+    </body>
+</html>

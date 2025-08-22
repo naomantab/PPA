@@ -88,6 +88,12 @@ if 'DatasetName' in cols:
     cols = ['DatasetName'] + [col for col in cols if col != 'DatasetName']
     raw_matrix = raw_matrix[cols]
 
+# has 2710 columns, causes issues with clustering downstream
+# remove columns that start with 'TTN'
+raw_matrix = raw_matrix.loc[:, ~raw_matrix.columns.str.startswith("TTN")]
+
+
+
 # save raw matrix
 raw_matrix.to_csv('C:/Users/tnaom/OneDrive/Desktop/PPA/02_raw_matrix/RawMatrix.csv', index=False)
 print(f'Raw matrix saved successfully!', raw_matrix)

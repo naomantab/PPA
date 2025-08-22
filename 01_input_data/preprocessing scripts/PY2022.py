@@ -27,13 +27,19 @@ data = pd.read_csv(f"C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/raw_data/
 print('Raw data loaded.')
 
 
-# Extract columns using list comprehension
-ratio_columns = data[[col for col in data.columns if 'Ratio' in col]]
-
-
 # Display the filtered columns
-filtered_columns = ['Gene Symbol', 'Modifications']
-filtered_columns.extend(list(ratio_columns.columns))
+filtered_columns = [
+    'Gene Symbol',
+    'Modifications',
+    'Abundances (by Bio. Rep.): OVX,1',
+    'Abundances (by Bio. Rep.): OVX,2',
+    'Abundances (by Bio. Rep.): OVX,3',
+    'Abundances (by Bio. Rep.): OVX,4',
+    'Abundances (by Bio. Rep.): Sham,5',
+    'Abundances (by Bio. Rep.): Sham,6',
+    'Abundances (by Bio. Rep.): Sham,7',
+    'Abundances (by Bio. Rep.): Sham,8'
+]
 
 data = data[filtered_columns].copy()
 
@@ -76,6 +82,12 @@ data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
 # append dataset name
 new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
 data.columns = new_columns
+
+# log the data
+data= preprocessing.log2_transform(data)
+
+# clean up command
+data = preprocessing.clean_phosID_col(data)
 
 # export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file

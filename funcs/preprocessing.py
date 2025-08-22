@@ -438,3 +438,5 @@ def get_csv_file_names_as_tuple(folder_path):
             name_without_ext = os.path.splitext(filename)[0]
             file_names.append(name_without_ext)
     return tuple(file_names)
+
+# ----------------- #

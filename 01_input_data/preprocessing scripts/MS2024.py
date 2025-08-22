@@ -51,6 +51,10 @@ columns_saved = [
 
 data = data[columns_saved].copy()
 
+# Clean float positions
+data = data[np.isfinite(data['Position'])]  # Removes NaN, inf, -inf
+data['Position'] = data['Position'].round().astype('Int64')
+
 # create phosphosite column
 data['Phosphosite'] = data['Amino acid'].astype(str) + '(' + data['Position'].astype(str) + ')'
 # rename GeneName column and remove blanks
@@ -65,6 +69,8 @@ print('Phosphosite IDs created.')
 column_name = 'phosphosite_ID'
 data = data[[column_name] + [col for col in data.columns if col != column_name]]
 # drop columns
+
+
 data.drop('Amino acid', axis=1, inplace=True)
 data.drop('Position', axis=1, inplace=True)
 
@@ -80,6 +86,12 @@ data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
 # append dataset name
 new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
 data.columns = new_columns
+
+# log the data
+data= preprocessing.log2_transform(data)
+
+data = preprocessing.clean_phosID_col(data) # call function to clean phosphosite_ID column
+print('Phosphosite IDs cleaned.')
 
 # export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file

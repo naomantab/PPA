@@ -36,7 +36,7 @@ filtered_columns.extend(list(intensity_columns.columns))
 data = data[filtered_columns].copy()
 
 # create phosphosite column
-data['Phosphosite'] = data['Amino acid'].astype(str) + '_(' + data['Position'].astype(str) + ')'
+data['Phosphosite'] = data['Amino acid'].astype(str) + '(' + data['Position'].astype(str) + ')'
 # rename GeneName column and remove blanks
 data['Gene name'] = data['Gene name'].astype(str).str.split().str[0] #to get first name
 data.rename(columns={'Gene name': 'GeneName'}, inplace=True)
@@ -62,6 +62,12 @@ data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
 # append dataset name
 new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
 data.columns = new_columns
+
+# log the data
+data= preprocessing.log2_transform(data)
+
+data = preprocessing.clean_phosID_col(data) # call function to clean phosphosite_ID column
+print('Phosphosite IDs cleaned.')
 
 # export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file

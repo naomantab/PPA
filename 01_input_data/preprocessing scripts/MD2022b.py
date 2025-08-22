@@ -41,12 +41,15 @@ mod_aa = data['motifX'].str.extract(r'([STY])\*')  # Gets the modified amino aci
 mod_pos = data['modifCoord']                      # Gets the position in protein
 data['Phosphosite'] = mod_aa[0] + '(' + mod_pos.astype(str) + ')'
 
+
 # format GeneName column
 data.dropna(subset=['geneName'])
 data = data.rename(columns={'geneName': 'GeneName'})
 
 data = preprocessing.create_phos_ID(data) # call function to create phosphosite_ID column
 print('Phosphosite IDs created.')
+
+data = data[~data['phosphosite_ID'].str.contains(',', na=False)]
 
 # cleaning up the dataframe final time
 # reposition column
@@ -56,9 +59,6 @@ data = data[[column_name] + [col for col in data.columns if col != column_name]]
 # clean up data
 data.drop('motifX', axis=1, inplace=True)
 data.drop('modifCoord', axis=1, inplace=True)
-
-# log the data
-data= preprocessing.log2_transform(data)
 
 # capitalise the first col
 data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
@@ -70,6 +70,9 @@ data.columns = new_columns
 # append dataset name
 new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
 data.columns = new_columns
+
+#log the data
+data = preprocessing.log2_transform(data)
 
 # clean up command
 data = preprocessing.clean_phosID_col(data)

@@ -63,6 +63,12 @@ data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
 new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
 data.columns = new_columns
 
+# log the data
+data= preprocessing.log2_transform(data)
+
+# clean up command
+data = preprocessing.clean_phosID_col(data)
+
 # export the file
 data.to_csv(f'C:/Users/tnaom/OneDrive/Desktop/PPA/01_input_data/processed_datasets/{dataset}.csv', index = False) # save processed data to csv file
 print(dataset, 'has been saved to CSV successfully!', data)

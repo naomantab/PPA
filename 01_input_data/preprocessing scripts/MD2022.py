@@ -67,6 +67,9 @@ data['phosphosite_ID'] = data['phosphosite_ID'].str.upper()
 new_columns = [data.columns[0]] + [f"{dataset}_{col}" for col in data.columns[1:]]
 data.columns = new_columns
 
+# log the data
+data= preprocessing.log2_transform(data)
+
 # clean up command
 data = preprocessing.clean_phosID_col(data)
 
